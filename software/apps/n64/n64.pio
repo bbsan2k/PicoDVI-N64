@@ -8,17 +8,29 @@
 
 ; Video
 ; Data is stable on Negedge of CLK
+.define DATA0 0
+.define DATA1 1
+.define DATA2 2
+.define DATA3 3
+.define DATA4 4
+.define DATA5 5
+.define DATA6 6
 ; 0-6 = data
+.define DSYNC 7
 ; 7   = dsync
-; 8   = clk
+.define CLK   21
+; 21   = clk
 
 ; Audio (pinout matches the drawing in the repo)
-;  9 = LRCLK
-; 10 = SDAT
-; 11 = BCLK
+.define LRCLK 22
+; 22 = LRCLK
+.define SDAT 23
+; 23 = SDAT
+.define BCLK 24
+; 24 = BCLK
 
 ; Joybus RX
-; 20 = P1 Data (from PIF)
+; 27 = P1 Data (from PIF)
 
 ; ----------------------------------------------------------
 ; Video data sampling
@@ -28,13 +40,13 @@ public n64_video_start:
 .wrap_target
 
     ; Wait for high CLK
-    wait 1 pin 8
+    wait 1 pin CLK
 
     ; Sample 4 bytes in total
     set x, 2
 
     ; Wait for low CLK
-    wait 0 pin 8
+    wait 0 pin CLK
 
     ; if DSYNC: goto n64_video_start
     jmp pin n64_video_start
@@ -47,9 +59,9 @@ public n64_video_start:
 n64_video_capture_loop:
 
     ; Wait for high CLK
-    wait 1 pin 8
+    wait 1 pin CLK
     ; Wait for low CLK
-    wait 0 pin 8
+    wait 0 pin CLK
 
     ; Sample data + dsyncn
     in pins, 8
@@ -107,13 +119,13 @@ public n64_audio_start_wrap:
     ; This is okay to do when we loop as well,
     ; since we just finished capturing the right channel.
     ; Ensure that LRCLK = 1 (Left channel active)
-    wait 1 gpio 9
+    wait 1 gpio LRCLK
 
     ; Clear the ISR to ensure we don't end up with unaligned data
     mov isr, null
 
     ; Ensure that LRCLK = 0 (Right channel active)
-    wait 0 gpio 9
+    wait 0 gpio LRCLK
 
     ; This label is used when capturing the second word
 public n64_audio_capture_word:
@@ -125,12 +137,12 @@ public n64_audio_capture_word:
     ; ------
     ; Skip the first sample (17th stray bit of previous sample)
     ; Wait for low BCLK
-    wait 0 gpio 11
+    wait 0 gpio BCLK
 
     ; Time between this step and the next can be a few microseconds, or a clock cycle.
 
     ; Wait for high BCLK
-    wait 1 gpio 11
+    wait 1 gpio BCLK
     
     ; At 48kHz samp. rate the time between this and the next low BCLK is extremely short (20-100 ns)
  
@@ -139,10 +151,10 @@ public n64_audio_capture_word:
 
 n64_audio_left_capture_loop:
     ; Wait for low BCLK
-    wait 0 gpio 11
+    wait 0 gpio BCLK
 
     ; Wait for high BCLK
-    wait 1 gpio 11
+    wait 1 gpio BCLK
 
     ; Sample a data bit
     in pins, 1
@@ -175,10 +187,12 @@ public n64_audio_wrap:
 
 void n64_video_program_init(PIO pio, uint sm, uint offset)
 {
-    // gpio0 -> 8 input
-    for (int i = 0; i <= 8; i++) {
+    // gpio0 -> 7 input
+    for (int i = 0; i <= 7; i++) {
         pio_gpio_init(pio, i);
     }
+    // Clock Input
+	pio_gpio_init(pio, 21);
 
     pio_sm_config c = n64_program_get_default_config(offset);
 
@@ -200,7 +214,7 @@ void n64_video_program_init(PIO pio, uint sm, uint offset)
 void n64_audio_program_init(PIO pio, uint sm, uint offset)
 {
     // gpio9 -> 11 input
-    for (int i = 9; i <= 11; i++) {
+    for (int i = 22; i <= 24; i++) {
         pio_gpio_init(pio, i);
     }
 
@@ -215,10 +229,10 @@ void n64_audio_program_init(PIO pio, uint sm, uint offset)
     sm_config_set_in_shift(&c, false, true, 32);
 
     // SDAT/GPIO10 as in start pin
-    sm_config_set_in_pins(&c, 10);
+    sm_config_set_in_pins(&c, 23);
 
     // JMP pin = LRCLK
-    sm_config_set_jmp_pin(&c, 9);
+    sm_config_set_jmp_pin(&c, 22);
 
     pio_sm_init(pio, sm, offset + n64_offset_n64_audio_start, &c);
 }

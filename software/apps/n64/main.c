@@ -45,11 +45,11 @@
 #define PIN_VIDEO_D5     5
 #define PIN_VIDEO_D6     6
 #define PIN_VIDEO_DSYNC  7
-#define PIN_VIDEO_CLK    8
-#define PIN_AUDIO_LRCLK  9
-#define PIN_AUDIO_SDAT  10
-#define PIN_AUDIO_BCLK  11
-#define PIN_JOYBUS_P1   20
+#define PIN_VIDEO_CLK    21
+#define PIN_AUDIO_LRCLK 22
+#define PIN_AUDIO_SDAT  23
+#define PIN_AUDIO_BCLK  24
+#define PIN_JOYBUS_P1   25
 
 // Crop configuration for PAL vs NTSC
 #define IN_RANGE(__x, __low, __high) (((__x) >= (__low)) && ((__x) <= (__high)))
