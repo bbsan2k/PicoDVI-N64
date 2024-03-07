@@ -32,3 +32,5 @@ pico_generate_pio_header(n64 ${CMAKE_CURRENT_LIST_DIR}/n64.pio)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(n64)
+
+add_compile_definitions(PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64)
