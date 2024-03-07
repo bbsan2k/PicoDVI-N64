@@ -607,24 +607,6 @@ int main(void)
         }
 
 end_of_line:
-        // Show diagnostic information every 100 frames, for 1 second
-
-#ifdef DIAGNOSTICS
-        if (frame % (50) == 0) {
-            uint32_t y = 0;
-            t1 = *pGetTime;
-
-            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "Delta %d", (t1 - t0));
-            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "row %d", row);
-            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "column %d", column);
-            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "count %d", count);
-
-
-            sleep_ms(2000);
-            t0 = *pGetTime;
-        }
-#endif
-
         // Perform NTSC / PAL detection based on number of rows
         if (IN_TOLERANCE(row, ROWS_PAL, ROWS_TOLERANCE)) {
             crop_x = DEFAULT_CROP_X_PAL;
@@ -634,6 +616,23 @@ end_of_line:
             crop_x = DEFAULT_CROP_X_NTSC;
             crop_y = DEFAULT_CROP_Y_NTSC;
         }
+#ifdef DIAGNOSTICS
+        // Show diagnostic information every 100 frames, for 1 second
+        if (frame % (50) == 0) {
+            uint32_t y = 0;
+            t1 = *pGetTime;
+
+            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "Delta %d", (t1 - t0));
+            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "row %d", row);
+            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "column %d", column);
+            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "count %d", count);
+            gfx_puttextf(0, ++y * 8, 0xffff, 0x0000, "Mode %s", crop_x == DEFAULT_CROP_X_NTSC ? "NTSC" : "PAL");
+
+            sleep_ms(2000);
+            t0 = *pGetTime;
+        }
+#endif
+
 
 #ifdef DIAGNOSTICS_JOYBUS
     {
