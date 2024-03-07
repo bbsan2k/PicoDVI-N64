@@ -119,7 +119,7 @@ void dvi_audio_sample_dma_set_chan(struct dvi_inst *inst, int chan_a, audio_samp
 void dvi_set_audio_freq(struct dvi_inst *inst, int audio_freq, int cts, int n);
 void dvi_update_audio_freq(struct dvi_inst *inst, int audio_freq, int cts, int n);
 bool dvi_update_data_packet_(struct dvi_inst *inst, data_packet_t *packet);
-void inline dvi_update_data_packet(struct dvi_inst *inst) {
+static void inline dvi_update_data_packet(struct dvi_inst *inst) {
     data_packet_t packet;
     if (!dvi_update_data_packet_(inst, &packet)) {
         set_null(&packet, sizeof(data_packet_t));
