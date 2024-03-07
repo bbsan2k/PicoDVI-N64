@@ -33,7 +33,7 @@
 #include "osd.h"
 
 // Enable to print debug/diagnostics
-// #define DIAGNOSTICS
+//#define DIAGNOSTICS
 // #define DIAGNOSTICS_JOYBUS
 
 // Pinout reference
@@ -209,7 +209,14 @@ int main(void)
 
     printf("Start rendering\n");
 
-    for (int i = PIN_VIDEO_D0; i <= PIN_AUDIO_BCLK; i++) {
+    for (int i = PIN_VIDEO_D0; i <= PIN_VIDEO_DSYNC; i++) {
+        gpio_init(i);
+        gpio_set_dir(i, GPIO_IN);
+
+        // Enable weak internal pull downs to reduce noise when n64 is turned off
+        gpio_set_pulls(i, false, true);
+    }
+    for (int i = PIN_VIDEO_CLK; i <= PIN_JOYBUS_P1; i++) {
         gpio_init(i);
         gpio_set_dir(i, GPIO_IN);
 
